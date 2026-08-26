@@ -1,5 +1,0 @@
-Place your existing spreadsheet in this folder and rename it exactly:
-
-MasterInventory.xlsx
-
-Do not change the website files for normal inventory updates.
