@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,6 +24,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout PCS-INVENTORY
         uses: actions/checkout@v4
@@ -39,6 +40,29 @@ jobs:
       - name: Build inventory from MasterInventory.xlsx
         run: python scripts/build_inventory.py
 
+      # Copy the generated QR codes out of the temporary website build
+      # and into the real qr-codes folder in the repository.
+      - name: Update QR code folder
+        run: |
+          rm -rf qr-codes
+          mkdir -p qr-codes
+          cp -a _site/qr-codes/. qr-codes/
+
+      # Save new/changed QR codes back to the main branch.
+      - name: Commit QR codes to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add qr-codes
+
+          if git diff --cached --quiet; then
+            echo "QR codes are already up to date."
+          else
+            git commit -m "Update generated QR codes"
+            git push
+          fi
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -51,8 +75,10 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     needs: build
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
