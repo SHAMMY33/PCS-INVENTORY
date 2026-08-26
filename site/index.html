@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>PCS Inventory</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./">PCS Inventory</a>
+    <nav class="actions" aria-label="Inventory controls">
+      <a class="button" href="./">Home</a>
+      <button class="button" id="refreshButton" type="button">Refresh</button>
+      <form id="searchForm" class="search" role="search">
+        <label class="sr-only" for="searchInput">Search Item ID</label>
+        <input id="searchInput" type="search" inputmode="numeric" placeholder="Search Item ID" autocomplete="off">
+        <button class="button" type="submit">Search</button>
+      </form>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section id="homePanel" class="home-panel">
+      <h1>PCS Inventory</h1>
+      <p>Enter an Item ID above or scan an item's QR code.</p>
+    </section>
+
+    <section id="messagePanel" class="message hidden" aria-live="polite"></section>
+
+    <article id="itemPanel" class="item-card hidden">
+      <div class="item-heading">
+        <p class="eyebrow">ITEM RECORD</p>
+        <h1 id="itemTitle"></h1>
+      </div>
+      <dl id="itemFields" class="fields"></dl>
+      <section id="photosSection" class="photos-section hidden">
+        <h2>Photos</h2>
+        <div id="photosGrid" class="photos-grid"></div>
+      </section>
+    </article>
+  </main>
+
+  <script src="inventory.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+1. Add your existing spreadsheet here and name it: MasterInventory.xlsx
+2. Add photos under photos/0001/, photos/0002/, etc.
+3. Upload the CONTENTS of this folder to the ROOT of SHAMMY33/PCS-INVENTORY.
+4. In GitHub: Settings > Pages > Source > GitHub Actions.
