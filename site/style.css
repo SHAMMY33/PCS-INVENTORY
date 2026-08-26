@@ -62,3 +62,21 @@ body { margin: 0; }
   .search input { flex: 1; min-width: 0; width: auto; }
   .field-row { grid-template-columns: 1fr; gap: 5px; }
 }
+
+.upload-section { margin-top: 26px; padding-top: 20px; border-top: 1px solid #e6e6e6; }
+.primary { font-weight: 700; }
+.upload-panel { margin-top: 14px; padding: 16px; border: 1px solid #dedede; border-radius: 8px; background: #fafafa; }
+.upload-panel h2 { margin: 0 0 8px; font-size: 18px; }
+.upload-panel label { display: block; margin: 14px 0 6px; font-weight: 700; }
+.upload-help, .token-note { margin: 6px 0; color: #555; font-size: 14px; overflow-wrap: anywhere; }
+.token-row { display: flex; gap: 8px; align-items: stretch; }
+.token-row input { flex: 1; min-width: 0; padding: 8px 10px; }
+.file-input { display: block; width: 100%; min-height: 44px; padding: 8px; background: #fff; }
+.upload-status { min-height: 1.4em; margin: 12px 0 0; font-size: 14px; font-weight: 700; }
+.upload-status.success { color: #176b2c; }
+.upload-status.error { color: #9c2020; }
+.button:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 650px) {
+  .token-row { flex-direction: column; }
+  .upload-panel { padding: 14px; }
+}

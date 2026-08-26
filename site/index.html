@@ -35,6 +35,29 @@
         <h1 id="itemTitle"></h1>
       </div>
       <dl id="itemFields" class="fields"></dl>
+
+      <section class="upload-section">
+        <button class="button primary" id="toggleUploadButton" type="button">Add Photos</button>
+        <div id="uploadPanel" class="upload-panel hidden">
+          <h2>Upload photos to this item</h2>
+          <p class="upload-help">Photos are committed directly to <strong id="uploadPath"></strong> in PCS-INVENTORY.</p>
+
+          <label for="tokenInput">GitHub token</label>
+          <div class="token-row">
+            <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Fine-grained token">
+            <button class="button" id="clearTokenButton" type="button">Clear</button>
+          </div>
+          <p class="token-note">The token stays only in this browser tab/session and is never added to the repository.</p>
+
+          <label for="photoInput">Photos</label>
+          <input id="photoInput" class="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+          <p id="fileSummary" class="upload-help">No photos selected.</p>
+
+          <button class="button primary" id="uploadButton" type="button">Upload Photos</button>
+          <p id="uploadStatus" class="upload-status" aria-live="polite"></p>
+        </div>
+      </section>
+
       <section id="photosSection" class="photos-section hidden">
         <h2>Photos</h2>
         <div id="photosGrid" class="photos-grid"></div>

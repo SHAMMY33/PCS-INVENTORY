@@ -29,7 +29,6 @@ EXPECTED = {
     "HAZARDOUS/RESTRICTED": "hazardous_restricted",
     "SHIPMENT LOCATION": "shipment_location",
     "NOTES": "notes",
-    "PHOTOS": "photos_column",
 }
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
@@ -99,8 +98,6 @@ def main() -> None:
 
         record = {}
         for sheet_header, key in EXPECTED.items():
-            if key == "photos_column":
-                continue
             col = columns.get(sheet_header)
             record[key] = clean_value(ws.cell(row=row, column=col).value) if col else ""
         record["item_id"] = item_id
