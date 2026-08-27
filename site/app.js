@@ -27,6 +27,11 @@
   const photosGrid = document.getElementById("photosGrid");
   const searchForm = document.getElementById("searchForm");
   const searchInput = document.getElementById("searchInput");
+  const inventoryRows = document.getElementById("inventoryRows");
+  const inventoryCount = document.getElementById("inventoryCount");
+  const categoryFilters = document.getElementById("categoryFilters");
+  const clearFiltersButton = document.getElementById("clearFiltersButton");
+  const emptyResults = document.getElementById("emptyResults");
   const toggleUploadButton = document.getElementById("toggleUploadButton");
   const uploadPanel = document.getElementById("uploadPanel");
   const uploadPath = document.getElementById("uploadPath");
@@ -36,6 +41,11 @@
   const fileSummary = document.getElementById("fileSummary");
   const uploadButton = document.getElementById("uploadButton");
   const uploadStatus = document.getElementById("uploadStatus");
+
+  const items = Object.values(inventory).sort((a, b) =>
+    String(a.item_id || "").localeCompare(String(b.item_id || ""), undefined, { numeric: true })
+  );
+  const selectedCategories = new Set();
   let currentItemId = "";
 
   try {
@@ -47,6 +57,107 @@
     if (!text) return "";
     if (/^\d+$/.test(text)) return text.padStart(4, "0");
     return text;
+  }
+
+  function categoriesForInventory() {
+    return [...new Set(
+      items
+        .map(item => String(item.category ?? "").trim())
+        .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  }
+
+  function buildCategoryFilters() {
+    categoryFilters.replaceChildren();
+    const categories = categoriesForInventory();
+
+    if (categories.length === 0) {
+      const note = document.createElement("span");
+      note.className = "filter-help";
+      note.textContent = "No categories found in the master sheet.";
+      categoryFilters.append(note);
+      return;
+    }
+
+    for (const category of categories) {
+      const label = document.createElement("label");
+      label.className = "category-option";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = category;
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) selectedCategories.add(category);
+        else selectedCategories.delete(category);
+        renderHomeList();
+      });
+
+      const text = document.createElement("span");
+      text.textContent = category;
+      label.append(checkbox, text);
+      categoryFilters.append(label);
+    }
+  }
+
+  function matchingItems() {
+    const query = searchInput.value.trim().toLowerCase();
+    return items.filter(item => {
+      const category = String(item.category ?? "").trim();
+      const categoryMatch = selectedCategories.size === 0 || selectedCategories.has(category);
+      if (!categoryMatch) return false;
+      if (!query) return true;
+
+      const id = String(item.item_id ?? "").toLowerCase();
+      const name = String(item.item_name ?? "").toLowerCase();
+      return id.includes(query) || name.includes(query);
+    });
+  }
+
+  function renderHomeList() {
+    const results = matchingItems();
+    inventoryRows.replaceChildren();
+
+    for (const item of results) {
+      const row = document.createElement("tr");
+      row.tabIndex = 0;
+      row.className = "inventory-row";
+      row.setAttribute("aria-label", `Open item ${item.item_id}: ${item.item_name || "Unnamed Item"}`);
+
+      const idCell = document.createElement("td");
+      const nameCell = document.createElement("td");
+      const categoryCell = document.createElement("td");
+      idCell.textContent = item.item_id || "—";
+      nameCell.textContent = item.item_name || "—";
+      categoryCell.textContent = item.category || "—";
+      row.append(idCell, nameCell, categoryCell);
+
+      const open = () => showItem(item.item_id);
+      row.addEventListener("click", open);
+      row.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          open();
+        }
+      });
+      inventoryRows.append(row);
+    }
+
+    inventoryCount.textContent = `${results.length} of ${items.length} item${items.length === 1 ? "" : "s"} shown`;
+    emptyResults.classList.toggle("hidden", results.length !== 0);
+  }
+
+  function showHome({ clearSearch = false } = {}) {
+    currentItemId = "";
+    if (clearSearch) searchInput.value = "";
+    messagePanel.classList.add("hidden");
+    itemPanel.classList.add("hidden");
+    homePanel.classList.remove("hidden");
+    uploadPanel.classList.add("hidden");
+    toggleUploadButton.textContent = "Add Photos";
+    const url = new URL(window.location.href);
+    url.searchParams.delete("item");
+    history.replaceState(null, "", url);
+    renderHomeList();
   }
 
   function showMessage(text) {
@@ -65,6 +176,8 @@
     uploadStatus.textContent = "";
     uploadStatus.className = "upload-status";
     uploadButton.disabled = false;
+    uploadPanel.classList.add("hidden");
+    toggleUploadButton.textContent = "Add Photos";
   }
 
   function showItem(id) {
@@ -180,9 +293,7 @@
       return;
     }
 
-    try {
-      sessionStorage.setItem(TOKEN_KEY, token);
-    } catch (_) {}
+    try { sessionStorage.setItem(TOKEN_KEY, token); } catch (_) {}
 
     uploadButton.disabled = true;
     uploadStatus.textContent = `Preparing ${files.length} photo${files.length === 1 ? "" : "s"}…`;
@@ -248,12 +359,25 @@
     }
   }
 
-  searchForm.addEventListener("submit", (event) => {
+  searchForm.addEventListener("submit", event => {
     event.preventDefault();
-    showItem(searchInput.value);
+    const normalized = normalizeId(searchInput.value);
+    if (inventory[normalized]) showItem(normalized);
+    else showHome();
+  });
+
+  searchInput.addEventListener("input", () => {
+    if (!homePanel.classList.contains("hidden")) renderHomeList();
   });
 
   document.getElementById("refreshButton").addEventListener("click", () => window.location.reload());
+
+  clearFiltersButton.addEventListener("click", () => {
+    selectedCategories.clear();
+    searchInput.value = "";
+    for (const checkbox of categoryFilters.querySelectorAll('input[type="checkbox"]')) checkbox.checked = false;
+    renderHomeList();
+  });
 
   toggleUploadButton.addEventListener("click", () => {
     uploadPanel.classList.toggle("hidden");
@@ -273,6 +397,9 @@
   });
 
   uploadButton.addEventListener("click", uploadFiles);
+
+  buildCategoryFilters();
+  renderHomeList();
 
   const queryId = new URLSearchParams(window.location.search).get("item");
   if (queryId) showItem(queryId);

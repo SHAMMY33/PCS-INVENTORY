@@ -9,13 +9,13 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./">PCS Inventory</a>
+    <a class="brand" id="homeLink" href="./">PCS Inventory</a>
     <nav class="actions" aria-label="Inventory controls">
-      <a class="button" href="./">Home</a>
+      <a class="button" id="homeButton" href="./">Home</a>
       <button class="button" id="refreshButton" type="button">Refresh</button>
       <form id="searchForm" class="search" role="search">
-        <label class="sr-only" for="searchInput">Search Item ID</label>
-        <input id="searchInput" type="search" inputmode="numeric" placeholder="Search Item ID" autocomplete="off">
+        <label class="sr-only" for="searchInput">Search items</label>
+        <input id="searchInput" type="search" placeholder="Search ID or item name" autocomplete="off">
         <button class="button" type="submit">Search</button>
       </form>
     </nav>
@@ -23,8 +23,35 @@
 
   <main class="page">
     <section id="homePanel" class="home-panel">
-      <h1>PCS Inventory</h1>
-      <p>Enter an Item ID above or scan an item's QR code.</p>
+      <div class="home-heading">
+        <div>
+          <h1>PCS Inventory</h1>
+          <p id="inventoryCount"></p>
+        </div>
+        <button class="button" id="clearFiltersButton" type="button">Clear Filters</button>
+      </div>
+
+      <section class="filter-panel" aria-labelledby="categoryFilterTitle">
+        <div class="filter-heading">
+          <h2 id="categoryFilterTitle">Filter by category</h2>
+          <span class="filter-help">Select any number of categories.</span>
+        </div>
+        <div id="categoryFilters" class="category-filters"></div>
+      </section>
+
+      <div class="table-wrap">
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th scope="col">ITEM ID</th>
+              <th scope="col">ITEM NAME</th>
+              <th scope="col">CATEGORY</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryRows"></tbody>
+        </table>
+      </div>
+      <p id="emptyResults" class="empty-results hidden">No items match the current search and category filters.</p>
     </section>
 
     <section id="messagePanel" class="message hidden" aria-live="polite"></section>
